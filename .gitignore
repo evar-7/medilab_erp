@@ -1,0 +1,18 @@
+# Archivos del sistema
+.agents/
+.gemini/
+.idea/
+
+# Cache
+__pycache__/
+
+# Archivos de configuración
+*.iml
+templates.iml
+
+# Secciones en desarrollo
+paginaproducto/
+paginaweb/
+
+# Archivos del MVP
+medilab_erp/referencias/

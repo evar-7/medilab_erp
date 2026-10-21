@@ -1,0 +1,429 @@
+﻿<!DOCTYPE html>
+<html lang="es" class="h-100">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="csrf-token" content="mock-token-labinlab-12345">
+    <title>MediLab ERP - Demo de Automatización por Lotes</title>
+    <link rel="icon" type="image/x-icon" href="images/2.ico">
+    <link rel="stylesheet" href="stylesheet.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+<body class="d-flex flex-column h-100">
+<!-- Navbar -->
+<header>
+    <nav class="navbar navbar-expand-md navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img width="38" height="38" src="images/3.svg" alt="MediLab Logo" class="brand-logo">
+                <div class="brand-title-group">
+                    <span class="brand-title">MediLab</span>
+                    <span class="brand-tag">ERP</span>
+                </div>
+            </a>
+            <div class="navbar-actions ml-auto">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Sistema Online</span>
+                </div>
+                <div class="user-pill d-none d-sm-inline-flex">
+                    <span class="user-avatar-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </span>
+                    <span class="user-email">operador@medilab.demo</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="flex-shrink-0" role="main">
+    <div class="container-fluid px-3 px-md-4">
+
+        <!-- Banner explicativo para visitantes -->
+        <section class="demo-banner mb-3" aria-label="Información de la demostración">
+            <div class="demo-banner-content">
+                <div class="demo-banner-header">
+                    <span class="demo-pill-badge">Demo</span>
+                    <h1 class="demo-banner-title">Userscript / Extensión de Borrado por Lotes Adaptativo</h1>
+                </div>
+                <p class="demo-banner-desc">
+                    Inyecta selección múltiple, control de concurrencia y tolerancia a fallos sobre la interfaz original del ERP.
+                </p>
+                <div class="demo-feature-tags">
+                    <span class="feature-tag">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                        Concurrencia de 2 en 2
+                    </span>
+                    <span class="feature-tag">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        Prevención Anti-429 (Rate-limiting)
+                    </span>
+                    <span class="feature-tag">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        Delays adaptativos &amp; borrado reactivo
+                    </span>
+                </div>
+            </div>
+            <div class="demo-banner-actions">
+                <button type="button" class="btn-reset-demo" onclick="restablecerDatosPrueba()" title="Restablecer todas las filas para repetir la demostración">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="1 4 1 10 7 10"></polyline>
+                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                    </svg>
+                    <span>Reiniciar datos de prueba</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Resumen Ejecutivo de la Orden (Paciente / Cliente) -->
+        <section class="order-summary-card mb-3" aria-label="Resumen de la Orden">
+            <div class="order-summary-grid">
+                <!-- Columna 1: Identificador y Tipo de Orden -->
+                <div class="summary-col">
+                    <span class="summary-label">Orden de Servicio</span>
+                    <div class="order-id-wrapper">
+                        <span class="order-number">#1788543</span>
+                    </div>
+                    <div class="order-badges-group">
+                        <span class="badge-status-presupuesto">Presupuesto</span>
+                        <span class="badge-status-sucursal">Sucursal #1</span>
+                    </div>
+                </div>
+
+                <!-- Columna 2: Paciente / Cliente -->
+                <div class="summary-col">
+                    <span class="summary-label">Paciente / Cliente</span>
+                    <div class="patient-name-wrapper">
+                        <span class="patient-name">JOSÉ RAMÍREZ A.</span>
+                        <span class="patient-id-badge">ID: 174546</span>
+                    </div>
+                    <span class="patient-subtext">Muestra derivada de laboratorio</span>
+                </div>
+
+                <!-- Columna 3: Fecha de Recepción -->
+                <div class="summary-col">
+                    <span class="summary-label">Fecha de Recepción</span>
+                    <div class="date-wrapper">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="date-icon">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span class="date-text">2026-10-19 &bull; 02:16 PM</span>
+                    </div>
+                    <span class="date-subtext">Recepción y registro en sede</span>
+                </div>
+
+                <!-- Columna 4: Total Estimado -->
+                <div class="summary-col summary-col-total">
+                    <div class="total-box">
+                        <span class="total-label">Total Estimado</span>
+                        <span class="total-amount">&#8353; 242,484.32</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabla de Pruebas -->
+        <div class="card card-primary shadow-sm border-0">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00A9E6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <path d="M10 2v7.31"></path>
+                        <path d="M14 9.3V2"></path>
+                        <path d="M8.5 2h7"></path>
+                        <path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path>
+                        <path d="M5.52 16h12.96"></path>
+                    </svg>
+                    <span class="table-title">Productos / Pruebas de la Orden</span>
+                </div>
+                <span class="badge badge-purple badge-pill table-badge-counter">15 LÍNEAS</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="nowrap table table-hover table-sm mb-0">
+                        <thead>
+                        <tr>
+                            <th>Cod.</th>
+                            <th>Descripción</th>
+                            <th class="text-center">Cant.</th>
+                            <th class="text-right">Sub Total</th>
+                            <th class="text-right">D(%)</th>
+                            <th class="text-right">Descuento</th>
+                            <th class="text-right">IVA</th>
+                            <th class="text-right">Total</th>
+                            <th class="text-right">A Pagar</th>
+                            <th class="text-center">
+                                <i class="fa fa-clock mr-1" style="color: #0284c7;"></i> F. Promesa
+                            </th>
+                            <th class="text-center" style="width: 85px;">Acciones</th>
+                            <th class="text-center">Usuario</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="order-item-row" data-item-id="4784895">
+                            <td class="actions"><span class="code-badge">VITD2</span></td>
+                            <td><a class="item-link" href="#">25-OH vitamina D total, suero</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 29,320.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 1,172.80</td>
+                            <td class="col-num">&#8353; 30,492.80</td>
+                            <td class="col-payable">&#8353; 30,492.80</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 06:00 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784895" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        <tr class="order-item-row" data-item-id="4784894">
+                            <td class="actions"><span class="code-badge">CRE2</span></td>
+                            <td><a class="item-link" href="#">Creatinina, suero (@)</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 7,757.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 310.28</td>
+                            <td class="col-num">&#8353; 8,067.28</td>
+                            <td class="col-payable">&#8353; 8,067.28</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 05:00 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784894" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        <tr class="order-item-row" data-item-id="4784893">
+                            <td class="actions"><span class="code-badge">BUN2</span></td>
+                            <td><a class="item-link" href="#">Nitrógeno ureico, suero (@)</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 7,747.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 309.88</td>
+                            <td class="col-num">&#8353; 8,056.88</td>
+                            <td class="col-payable">&#8353; 8,056.88</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 05:00 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784893" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        <tr class="order-item-row" data-item-id="4784891">
+                            <td class="actions"><span class="code-badge">ALKP2</span></td>
+                            <td><a class="item-link" href="#">Fosfatasa alcalina, ALKP, suero</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 12,200.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 488.00</td>
+                            <td class="col-num">&#8353; 12,688.00</td>
+                            <td class="col-payable">&#8353; 12,688.00</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 05:00 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784891" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        <tr class="order-item-row" data-item-id="4784889">
+                            <td class="actions"><span class="code-badge">BTF</span></td>
+                            <td><a class="item-link" href="#">Bilirrubina total y fraccionada, suero</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 15,100.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 604.00</td>
+                            <td class="col-num">&#8353; 15,704.00</td>
+                            <td class="col-payable">&#8353; 15,704.00</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 05:00 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784889" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        <tr class="order-item-row" data-item-id="4784888">
+                            <td class="actions"><span class="code-badge">ALT2</span></td>
+                            <td><a class="item-link" href="#">ALT, Alanina aminotransferasa, suero (@)</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 10,787.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 431.48</td>
+                            <td class="col-num">&#8353; 11,218.48</td>
+                            <td class="col-payable">&#8353; 11,218.48</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 05:00 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784888" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        <tr class="order-item-row" data-item-id="4784887">
+                            <td class="actions"><span class="code-badge">AST2</span></td>
+                            <td><a class="item-link" href="#">AST, Aspartato aminotransferasa, suero (@)</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 10,787.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 431.48</td>
+                            <td class="col-num">&#8353; 11,218.48</td>
+                            <td class="col-payable">&#8353; 11,218.48</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 05:00 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784887" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        <tr class="order-item-row" data-item-id="4784880">
+                            <td class="actions"><span class="code-badge">ISE</span></td>
+                            <td><a class="item-link" href="#">Electrolitos, suero</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 32,417.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 1,296.68</td>
+                            <td class="col-num">&#8353; 33,713.68</td>
+                            <td class="col-payable">&#8353; 33,713.68</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 05:00 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784880" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        <tr class="order-item-row" data-item-id="4784879">
+                            <td class="actions"><span class="code-badge">FT3</span></td>
+                            <td><a class="item-link" href="#">T3 libre (FT3), suero</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 18,605.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 744.20</td>
+                            <td class="col-num">&#8353; 19,349.20</td>
+                            <td class="col-payable">&#8353; 19,349.20</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 05:00 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784879" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        <tr class="order-item-row" data-item-id="4784878">
+                            <td class="actions"><span class="code-badge">FT4</span></td>
+                            <td><a class="item-link" href="#">T4 libre (FT4), suero</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 18,605.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 744.20</td>
+                            <td class="col-num">&#8353; 19,349.20</td>
+                            <td class="col-payable">&#8353; 19,349.20</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 05:00 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784878" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        <tr class="order-item-row" data-item-id="4784876">
+                            <td class="actions"><span class="code-badge">GLUA2</span></td>
+                            <td><a class="item-link" href="#">Glucosa en ayunas, suero (@)</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 7,747.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 309.88</td>
+                            <td class="col-num">&#8353; 8,056.88</td>
+                            <td class="col-payable">&#8353; 8,056.88</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 05:00 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784876" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        <tr class="order-item-row" data-item-id="4784871">
+                            <td class="actions"><span class="code-badge">EGO</span></td>
+                            <td><a class="item-link" href="#">Examen general de orina, EGO</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 7,805.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 312.20</td>
+                            <td class="col-num">&#8353; 8,117.20</td>
+                            <td class="col-payable">&#8353; 8,117.20</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 05:16 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784871" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        <tr class="order-item-row" data-item-id="4784868">
+                            <td class="actions"><span class="code-badge">LIP2</span></td>
+                            <td><a class="item-link" href="#">Perfil de Lípidos (@)</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 22,737.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 909.48</td>
+                            <td class="col-num">&#8353; 23,646.48</td>
+                            <td class="col-payable">&#8353; 23,646.48</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 05:00 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784868" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        <tr class="order-item-row" data-item-id="4784867">
+                            <td class="actions"><span class="code-badge">TSH3</span></td>
+                            <td><a class="item-link" href="#">TSH, suero (@)</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 18,767.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 750.68</td>
+                            <td class="col-num">&#8353; 19,517.68</td>
+                            <td class="col-payable">&#8353; 19,517.68</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 05:00 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784867" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        <tr class="order-item-row" data-item-id="4784865">
+                            <td class="actions"><span class="code-badge">CBC</span></td>
+                            <td><a class="item-link" href="#">Hemograma completo (@)</a></td>
+                            <td class="text-center font-weight-500">1</td>
+                            <td class="col-num">&#8353; 12,777.00</td>
+                            <td class="col-num text-muted">0.00%</td>
+                            <td class="col-num text-muted">&#8353; 0.00</td>
+                            <td class="col-num">&#8353; 511.08</td>
+                            <td class="col-num">&#8353; 13,288.08</td>
+                            <td class="col-payable">&#8353; 13,288.08</td>
+                            <td class="actions text-center"><span class="badge badge-purple badge-pill badge-delivery-time">10-19 05:00 PM</span></td>
+                            <td class="actions text-center">
+                                <a class="btn btn-danger btn-sm" data-method="delete" href="/orders/1777677/order_items/4784865" data-confirm="¿Está seguro que desea eliminar el record?" title="Eliminar"><span class="fa fa-times"></span></a>
+                            </td>
+                            <td class="text-center"><span class="user-cell-badge">USER</span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<footer class="footer mt-auto py-3 text-center">
+    <div class="container">
+        &copy; 2026 MediLab ERP &bull; Entorno de Pruebas de Frontend y Automatización
+    </div>
+</footer>
+
+<script src="scripts/mock_server.js"></script>
+
+</body>
+</html>
