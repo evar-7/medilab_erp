@@ -3,8 +3,14 @@
 .gemini/
 .idea/
 
+# Entornos virtuales Python
+venv/
+.venv/
+env/
+
 # Cache
 __pycache__/
+*.pyc
 
 # Archivos de configuración
 *.iml
@@ -16,3 +22,6 @@ paginaweb/
 
 # Archivos del MVP
 medilab_erp/referencias/
+
+# Respaldo
+README copia.md
