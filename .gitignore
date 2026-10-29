@@ -23,5 +23,9 @@ paginaweb/
 # Archivos del MVP
 medilab_erp/referencias/
 
+# Backend local
+server.py
+requirements.txt
+
 # Respaldo
 README copia.md
