@@ -1,26 +1,32 @@
-// Mock server
+﻿// Mock server
 // Simula el comportamiento del servidor para las peticiones DELETE de los items de la tabla,
-// permitiendo que la animación de eliminación se vea correctamente sin recargar la página.
-// Los cambios se guardan en sessionStorage para mantener el estado durante la sesión.
+// permitiendo que la animacion de eliminacion se vea correctamente sin recargar la pagina.
+// Los cambios se guardan en sessionStorage para mantener el estado durante la sesion.
 
 (function () {
-    // 1. Restaurar estado de filas eliminadas desde sessionStorage al cargar la página
-    const deletedIds = JSON.parse(sessionStorage.getItem('labin_deleted_items') || '[]');
-    if (deletedIds.length > 0) {
-        document.addEventListener('DOMContentLoaded', () => {
-            deletedIds.forEach(id => {
-                const btn = document.querySelector('a[href*="/order_items/' + id + '"]');
-                if (btn) {
-                    const tr = btn.closest('tr');
-                    if (tr) tr.remove();
+    // 1. Restaurar estado de filas eliminadas desde sessionStorage al cargar la pagina
+    function applyDeletedRows() {
+        try {
+            const deletedIds = JSON.parse(sessionStorage.getItem('labin_deleted_items') || '[]');
+            if (deletedIds.length > 0) {
+                deletedIds.forEach(id => {
+                    const row = document.querySelector('tr[data-item-id="' + id + '"]') ||
+                                document.querySelector('a[href*="/order_items/' + id + '"]')?.closest('tr');
+                    if (row) row.remove();
+                });
+                const lineasBadge = document.querySelector('.card-header .badge-purple');
+                if (lineasBadge) {
+                    const restantes = document.querySelectorAll('tbody tr.order-item-row').length;
+                    lineasBadge.textContent = restantes + ' LINEAS';
                 }
-            });
-            const lineasBadge = document.querySelector('.card-header .badge-purple');
-            if (lineasBadge) {
-                const restantes = document.querySelectorAll('tbody tr.order-item-row').length;
-                lineasBadge.textContent = restantes + ' LÍNEAS';
             }
-        });
+        } catch (_) {}
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyDeletedRows);
+    } else {
+        applyDeletedRows();
     }
 
     // 2. Interceptar fetch para simular respuesta exitosa del servidor
@@ -31,8 +37,8 @@
             const match = urlStr.match(/\/order_items\/(\d+)/);
             const itemId = match ? match[1] : null;
 
-            console.log('%c[MOCK SERVER] Petición DELETE simulada para item #' + itemId, 'color: green; font-weight: bold;');
-            // Simula latencia de red de 150ms para ver la animación por lotes
+            console.log('%c[MOCK SERVER] Peticion DELETE simulada para item #' + itemId, 'color: green; font-weight: bold;');
+            // Simula latencia de red de 150ms para ver la animacion por lotes
             await new Promise(r => setTimeout(r, 150));
 
             if (itemId) {
@@ -61,7 +67,7 @@
         const url = btn.getAttribute('href');
         if (!url || url === '#') return;
 
-        const confirmMsg = btn.getAttribute('data-confirm') || '¿Está seguro que desea eliminar el record?';
+        const confirmMsg = btn.getAttribute('data-confirm') || 'Seguro que desea eliminar el record?';
         if (!confirm(confirmMsg)) return;
 
         btn.style.pointerEvents = 'none';
@@ -93,7 +99,7 @@
                         const lineasBadge = document.querySelector('.card-header .badge-purple');
                         if (lineasBadge) {
                             const restantes = document.querySelectorAll('tbody tr.order-item-row').length;
-                            lineasBadge.textContent = restantes + ' LÍNEAS';
+                            lineasBadge.textContent = restantes + ' LINEAS';
                         }
                     }, 250);
                 }
@@ -110,10 +116,9 @@
         }
     });
 
-    // Función global para reiniciar datos en la prueba
-    window.restablecerDatosPrueba = async function () {
+    // Funcion global para reiniciar datos en la prueba
+    window.restablecerDatosPrueba = function () {
         sessionStorage.removeItem('labin_deleted_items');
-        try { await fetch('/api/reset', { method: 'POST' }); } catch (_) {}
         window.location.reload();
     };
 })();
